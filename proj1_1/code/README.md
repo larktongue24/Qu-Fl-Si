@@ -1,0 +1,1 @@
+I have completed proj1_1 independently without discussing with anyone else. I referred to only the slides provided by the course and did not refer to external resources. 
