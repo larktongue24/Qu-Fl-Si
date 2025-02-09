@@ -23,7 +23,7 @@ quadrotor = Quadrotor(quad_params)
 my_se3_control = se3_control.SE3Control(quad_params)
 
 # This simple hover trajectory is useful for tuning control gains.
-#my_traj = hover_traj.HoverTraj()
+# my_traj = hover_traj.HoverTraj()
 
 # You will complete the implementation of the WaypointTraj object. It should
 # work for any list of 3D coordinates, such as this example:
@@ -43,7 +43,7 @@ my_traj = waypoint_traj.WaypointTraj(points)
 w = 2
 world = World.empty((-w, w, -w, w, -w, w))
 t_final = 60
-roll, pitch, yaw = 30, 30, 30
+roll, pitch, yaw = 30, 0, 0
 roll, pitch, yaw = np.radians([roll, pitch, yaw])
 r = Rotation.from_euler('xyz', [roll, pitch, yaw])
 q_init = r.as_quat()
@@ -96,6 +96,22 @@ ax.set_ylabel('velocity, m/s')
 ax.set_xlabel('time, s')
 ax.grid('major')
 
+(fig, ax) = plt.subplots(nrows=1, ncols=1, num='X Position vs Time')
+y_steady_state = 0
+y_initial = 0.5
+y_max = np.max(x[:, 0])
+y_settling_band = 0.02 * abs(y_initial - y_steady_state)
+ax.plot(time, x_des[:, 0], 'r', label='Desired X')
+ax.plot(time, x[:, 0], 'r.', label='Actual X')
+ax.axhline(y=y_max, color='purple', linestyle='--', label='Peak Value')
+ax.axhline(y=y_settling_band, color='gray', linestyle='--', label='2% Error Band')
+ax.axhline(y=-y_settling_band, color='gray', linestyle='--')
+ax.set_xlabel('time (s)')
+ax.set_ylabel('X Position (m)')
+ax.legend()
+ax.grid(True)
+ax.set_title('X Position')
+
 # Orientation and Angular Velocity vs. Time
 (fig, axes) = plt.subplots(nrows=2, ncols=1, sharex=True, num='Orientation vs Time')
 q_des = control['cmd_q']
@@ -114,6 +130,29 @@ ax.legend(('x', 'y', 'z'))
 ax.set_ylabel('angular velocity, rad/s')
 ax.set_xlabel('time, s')
 ax.grid('major')
+
+# Roll angle vs time
+(fig, ax) = plt.subplots(nrows=1, ncols=1, num='Euler Angle vs Time')
+q_des = control['cmd_q']
+q = state['q']
+r_des = Rotation.from_quat(q_des)
+angles_des = r_des.as_euler('xyz', degrees=True)
+r_curr = Rotation.from_quat(q)
+angles = r_curr.as_euler('xyz', degrees=True)
+roll_desired = angles_des[:, 0]
+roll_actual = angles[:, 0]
+roll_initial = 30
+roll_max = np.max(roll_actual)
+roll_settling_band = 0.02 * roll_initial
+ax.axhline(y=roll_settling_band, color='gray', linestyle='--', label='2% Error Band')
+ax.axhline(y=-roll_settling_band, color='gray', linestyle='--')
+ax.plot(time, angles_des[:, 0], 'r', label='Desired Roll')
+ax.plot(time, angles[:, 0], 'r.', label='Actual Roll')
+ax.set_ylabel('Roll Angle (°)')
+ax.set_xlabel('Time (s)')
+ax.legend()
+ax.grid(True)
+ax.set_title('Roll Angle')
 
 # Commands vs. Time
 (fig, axes) = plt.subplots(nrows=3, ncols=1, sharex=True, num='Commands vs Time')

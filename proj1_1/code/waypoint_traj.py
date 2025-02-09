@@ -25,7 +25,7 @@ class WaypointTraj(object):
             self._target = self._points[0]
             self._duration = 0.0
         else:
-            self._v = 2.3
+            self._v = 3
             l = np.diff(self._points, axis=0)
             d = np.linalg.norm(l, axis=1, keepdims=True)
             self._l_unit = l / d
@@ -63,25 +63,28 @@ class WaypointTraj(object):
         if len(self._points) == 1:
             x = self._target.copy()
         else:
-            if t > self._duration:
+            if t >= self._duration:
                 x = self._points[-1]
             else:
                 i_curr = np.searchsorted(self._t_start, t) - 1 if t > 0 else 0
                 p_i = self._points[i_curr]
                 l_i = self._l_unit[i_curr]
-                x = p_i + self._v * l_i * (t - self._t_start[i_curr])
-                x_dot = self._v * l_i
+                t_s = self._t_start[i_curr]
+                x = p_i + self._v * l_i * (t - t_s)
+                t_mid = (t_s + self._t_start[i_curr + 1]) / 2
+                v = self._v - np.abs(t_mid - t) / (t_mid - t_s) * self._v
+                x_dot = v * l_i
 
         flat_output = { 'x':x, 'x_dot':x_dot, 'x_ddot':x_ddot, 'x_dddot':x_dddot, 'x_ddddot':x_ddddot,
                         'yaw':yaw, 'yaw_dot':yaw_dot}
         return flat_output
 
-if __name__ == "__main__":
-    points = np.array([
-        [0, 0, 0],
-        [1, 0, 0],
-        [1, 2, 0],
-        [1, 2, 3]])
+# if __name__ == "__main__":
+#     points = np.array([
+#         [0, 0, 0],
+#         [1, 0, 0],
+#         [1, 2, 0],
+#         [1, 2, 3]])
     # l = np.diff(points, axis=0)
     # d = np.linalg.norm(l, axis=1, keepdims=True)
     # l_unit = l / d
@@ -101,9 +104,9 @@ if __name__ == "__main__":
 
     # my_traj = WaypointTraj(points)
     # print(my_traj.update(3.4))
-    from scipy.spatial.transform import Rotation
-    roll, pitch, yaw = 0, 0, 0
-    roll, pitch, yaw = np.radians([roll, pitch, yaw])
-    r = Rotation.from_euler('xyz', [roll, pitch, yaw])
-    q = r.as_quat()
-    print(q)
+    # from scipy.spatial.transform import Rotation
+    # roll, pitch, yaw = 0, 0, 0
+    # roll, pitch, yaw = np.radians([roll, pitch, yaw])
+    # r = Rotation.from_euler('xyz', [roll, pitch, yaw])
+    # q = r.as_quat()
+    # print(q)
