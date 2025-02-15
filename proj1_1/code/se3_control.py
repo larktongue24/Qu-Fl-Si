@@ -36,10 +36,15 @@ class SE3Control(object):
         self.g = 9.81 # m/s^2
 
         # STUDENT CODE HERE
-        self.kd = np.diag([4.6, 4.6, 4.6]) # 4 4.7
-        self.kp = np.diag([7.7, 7.7, 7.7]) # 9.3 11.3
-        self.kr = np.diag([300, 300, 300]) # 1600 342
-        self.kw = np.diag([25, 25, 25]) # 60 31
+        # self.kd = np.diag([4.6, 4.6, 4.6]) # 4 4.7
+        # self.kp = np.diag([7.7, 7.7, 7.7]) # 9.3 11.3
+        # self.kr = np.diag([300, 300, 300]) # 1600 342
+        # self.kw = np.diag([25, 25, 25]) # 60 31
+
+        self.kd = np.diag([5, 5, 5]) # 4 4.7
+        self.kp = np.diag([12, 12, 20]) # 9.3 11.3
+        self.kr = np.diag([300, 300, 10]) # 1600 342
+        self.kw = np.diag([20, 20, 5]) # 60 31
 
     def update(self, t, state, flat_output):
         """
