@@ -10,10 +10,11 @@ from flightsim.world import World
 
 from proj1_2.code.occupancy_map import OccupancyMap
 from proj1_2.code.graph_search import graph_search
+from proj1_2.code.graph_search_bi import graph_search_bi
 
 # Choose a test example file. You should write your own example files too!
 # filename = 'test_empty.json'
-filename = 'test_saw.json'
+filename = 'test_window.json'
 
 # Load the test example.
 file = Path(inspect.getsourcefile(lambda:0)).parent.resolve() / '..' / 'util' / filename
@@ -22,10 +23,13 @@ resolution = world.world['resolution'] # (x,y,z) resolution of discretization, s
 margin = world.world['margin']         # Scalar spherical robot size or safety margin.
 start  = world.world['start']          # Start point, shape=(3,)
 goal   = world.world['goal']           # Goal point, shape=(3,)
+print("start:     ", start)
+print("end:     ", goal)
 
 # Run your code and return the path.
 start_time = time.time()
 path, node_expanded = graph_search(world, resolution, margin, start, goal, astar=False)
+print(path)
 end_time = time.time()
 
 # Print results.
