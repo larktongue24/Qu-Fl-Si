@@ -36,25 +36,10 @@ class SE3Control(object):
         self.g = 9.81 # m/s^2
 
         # STUDENT CODE HERE
-        # self.kd = np.diag([4.6, 4.6, 4.6]) # 4 4.7
-        # self.kp = np.diag([7.7, 7.7, 7.7]) # 9.3 11.3
-        # self.kr = np.diag([300, 300, 300]) # 1600 342
-        # self.kw = np.diag([25, 25, 25]) # 60 31
-
-        # self.kp = np.diag([6.8, 6.8, 5])  # 9.3 11.3
-        # self.kd = np.diag([4.5, 4.5, 4])  # 4 4.7
-        # self.kr = np.diag([250, 250, 60])  # 1600 342
-        # self.kw = np.diag([20, 20, 30])  # 60 31
-
-        self.kd = np.diag([5, 5, 5]) # 4 4.7
-        self.kp = np.diag([12, 12, 20]) # 9.3 11.3
-        self.kr = np.diag([300, 300, 10]) # 1600 342
-        self.kw = np.diag([20, 20, 5]) # 60 31
-
-        # self.kd = np.diag([4, 4, 7])  # 4 4.7
-        # self.kp = np.diag([7, 7, 20])  # 9.3 11.3
-        # self.kr = np.diag([3500, 3500, 150])  # 1600 342
-        # self.kw = np.diag([150, 150, 80])  # 60 31
+        self.kd = np.diag([4.6, 4.6, 4.6]) # 4 4.7
+        self.kp = np.diag([9.7, 9.7, 5.7]) # 9.3 11.3
+        self.kr = np.diag([1600, 1600, 120]) # 1600 342
+        self.kw = np.diag([60, 60, 70]) # 60 31
 
     def update(self, t, state, flat_output):
         """
@@ -91,37 +76,37 @@ class SE3Control(object):
 
         # STUDENT CODE HERE
         # Position controller
-        r = state["x"].reshape(3,1)
-        r_dot = state["v"].reshape(3,1)
-        r_T = flat_output["x"].reshape(3,1)
-        r_dot_T = flat_output["x_dot"].reshape(3,1)
-        r_ddot_T = flat_output["x_ddot"].reshape(3,1)
+        r = state["x"].reshape(3, 1)
+        r_dot = state["v"].reshape(3, 1)
+        r_T = flat_output["x"].reshape(3, 1)
+        r_dot_T = flat_output["x_dot"].reshape(3, 1)
+        r_ddot_T = flat_output["x_ddot"].reshape(3, 1)
         r_ddot_des = r_ddot_T - self.kd @ (r_dot - r_dot_T) - self.kp @ (r - r_T)
-        F_des = self.mass * r_ddot_des + np.array([0, 0, self.mass * self.g]).reshape(3,1)
+        F_des = self.mass * r_ddot_des + np.array([0, 0, self.mass * self.g]).reshape(3, 1)
         R = Rotation.from_quat(state["q"]).as_matrix()
-        b3 = R @ np.array([0, 0, 1]).reshape(3,1)
+        b3 = R @ np.array([0, 0, 1]).reshape(3, 1)
         u1 = float(b3.T @ F_des)
         if u1 < 1e-6:
             u1 = 1e-6
 
         # Attitude controller
         b3_des = F_des / np.linalg.norm(F_des, keepdims=True)
-        a_psi = np.array([np.cos(flat_output["yaw"]), np.sin(flat_output["yaw"]), 0]).reshape(3,1)
-        b2_des = np.cross(b3_des.flatten(), a_psi.flatten()).reshape(3,1) / np.linalg.norm(
+        a_psi = np.array([np.cos(flat_output["yaw"]), np.sin(flat_output["yaw"]), 0]).reshape(3, 1)
+        b2_des = np.cross(b3_des.flatten(), a_psi.flatten()).reshape(3, 1) / np.linalg.norm(
             np.cross(b3_des.flatten(), a_psi.flatten()), keepdims=True)
-        b1_des = np.cross(b2_des.flatten(), b3_des.flatten()).reshape(3,1)
-        R_des = np.concatenate((b1_des, b2_des, b3_des), axis = 1)
+        b1_des = np.cross(b2_des.flatten(), b3_des.flatten()).reshape(3, 1)
+        R_des = np.concatenate((b1_des, b2_des, b3_des), axis=1)
         error = 0.5 * (R_des.T @ R - R.T @ R_des)
         e_R = np.array([[error[2, 1]], [-error[2, 0]], [error[1, 0]]])
         # Set w_des to 0
-        e_w = state["w"].reshape(3,1)
+        e_w = state["w"].reshape(3, 1)
         u2 = self.inertia @ (-self.kr @ e_R - self.kw @ e_w)
 
         # Control input
         l = self.arm_length
         gamma = self.k_drag / self.k_thrust
         coefficient = np.array([[1, 1, 1, 1], [0, l, 0, -l], [-l, 0, l, 0], [gamma, -gamma, gamma, -gamma]])
-        u = np.concatenate((np.array([[u1]]), u2), axis = 0)
+        u = np.concatenate((np.array([[u1]]), u2), axis=0)
         F = np.linalg.solve(coefficient, u)
         F = np.maximum(F, 0)
         w = np.sqrt(F / self.k_thrust)

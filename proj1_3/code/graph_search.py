@@ -1,18 +1,24 @@
 from heapq import heappush, heappop  # Recommended.
 import numpy as np
 
-#from code.sandbox import node_expanded
 from flightsim.world import World
 
 from .occupancy_map import OccupancyMap # Recommended.
 
-def collision_detection(map, a, b):
-    n = int(np.linalg.norm(np.array(a) - np.array(b)) / np.min(map.resolution))
-    for t in np.linspace(0, 1, n):
-        interp = (1 - t) * np.array(a) + t * np.array(b)
-        if map.is_occupied_metric(interp):
-            return True
-    return False
+def simplify(path, threshold):
+    if len(path) < 3:
+        return path.copy()
+
+    simplified = [path[0]]
+
+    for i in range(1, len(path) - 1):
+        if perpendicular_distance(path[i], path[i - 1], path[i + 1]) > threshold:
+            simplified.append(path[i])
+
+    simplified.append(path[-1])
+
+    return np.array(simplified)
+
 
 def rdp_simplify(path, epsilon):
     if len(path) < 3:
@@ -40,7 +46,8 @@ def perpendicular_distance(point, start, end):
         return np.linalg.norm(point - start)
     return np.linalg.norm(np.cross(point - start, point - end)) / np.linalg.norm(end - start)
 
-def resample_path(path, max_dist):
+
+def resample(path, max_dist):
     resampled = [path[0]]
     for i in range(len(path) - 1):
         p0 = np.array(path[i])
@@ -83,16 +90,12 @@ def graph_search(world, resolution, margin, start, goal, astar):
     start_index = tuple(occ_map.metric_to_index(start))
     goal_index = tuple(occ_map.metric_to_index(goal))
 
-    print("startIndex", occ_map.index_to_metric_negative_corner(start_index))
-    print("startIndex", occ_map.index_to_metric_negative_corner(goal_index))
-
     cost = {start_index: 0}
-
 
     aliveNodes = []
     # push index and initial cost
     if astar:
-        initial_h = 1.2 * np.linalg.norm(np.array(goal_index) - np.array(start_index))
+        initial_h = 1.0 * np.linalg.norm(np.array(goal_index) - np.array(start_index))
         heappush(aliveNodes, (initial_h, 0, start_index))
     else:
         heappush(aliveNodes, (0, start_index))
@@ -154,7 +157,7 @@ def graph_search(world, resolution, margin, start, goal, astar):
                 parentNodes[nextNode] = currNode
                 cost[nextNode] = nextCost
                 if astar:
-                    h = 1.2 * np.linalg.norm(np.array(goal_index) - np.array(nextNode))
+                    h = 1.0 * np.linalg.norm(np.array(goal_index) - np.array(nextNode))
                     f = nextCost + h
                     heappush(aliveNodes, (f, nextCost, nextNode))
                     # nextCost += abs(goal_index[0] - nextNode[0]) + abs(goal_index[1] - nextNode[1]) + abs(
