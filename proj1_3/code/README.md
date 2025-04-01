@@ -1,0 +1,2 @@
+I have completed proj1_3 independently without discussing with anyone else. 
+I referred to the slides provided by the course and the pseudocode of the RDP algorithm on Wikipedia. (https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm) 

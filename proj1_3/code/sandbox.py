@@ -22,7 +22,7 @@ from proj1_3.code.world_traj import WorldTraj
 # mpl.rcParams['figure.dpi'] = 200
 
 # Choose a test example file. You should write your own example files too!
-filename = '../util/test_over_under.json'
+filename = '../util/test_maze_2022_3.json'
 
 # Load the test example.
 file = Path(inspect.getsourcefile(lambda:0)).parent.resolve() / '..' / 'util' / filename

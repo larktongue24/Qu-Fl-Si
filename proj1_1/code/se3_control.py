@@ -46,15 +46,15 @@ class SE3Control(object):
         # self.kr = np.diag([250, 250, 60])  # 1600 342
         # self.kw = np.diag([20, 20, 30])  # 60 31
 
-        self.kd = np.diag([5, 5, 5]) # 4 4.7
-        self.kp = np.diag([12, 12, 20]) # 9.3 11.3
-        self.kr = np.diag([300, 300, 10]) # 1600 342
-        self.kw = np.diag([20, 20, 5]) # 60 31
+        # self.kd = np.diag([3, 3, 3]) # 4 4.7
+        # self.kp = np.diag([3, 3, 8]) # 9.3 11.3
+        # self.kr = np.diag([300, 300, 10]) # 1600 342
+        # self.kw = np.diag([20, 20, 5]) # 60 31
 
-        # self.kd = np.diag([4, 4, 7])  # 4 4.7
-        # self.kp = np.diag([7, 7, 20])  # 9.3 11.3
-        # self.kr = np.diag([3500, 3500, 150])  # 1600 342
-        # self.kw = np.diag([150, 150, 80])  # 60 31
+        self.kp = np.diag([5, 5, 8])  # 9.3 11.3
+        self.kd = np.diag([5, 5, 3]) # 4 4.7
+        self.kr = np.diag([1000, 1000, 100]) # 1600 342
+        self.kw = np.diag([50, 50, 40]) # 60 31
 
     def update(self, t, state, flat_output):
         """

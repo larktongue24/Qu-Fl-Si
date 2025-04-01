@@ -26,7 +26,7 @@ class WaypointTraj(object):
             self._duration = 0.0
         else:
             # max desired speed
-            self._v = 3
+            self._v = 0.75
             l = np.diff(self._points, axis=0)
             d = np.linalg.norm(l, axis=1, keepdims=True)
             self._l_unit = l / d
@@ -76,7 +76,8 @@ class WaypointTraj(object):
                 x = p_i + self._v * l_i * (t - t_s)
                 # update speed with a linearly increasing tendency
                 t_mid = (t_s + self._t_start[i_curr + 1]) / 2
-                v = self._v - np.abs(t_mid - t) / (t_mid - t_s) * self._v
+                # v = self._v - np.abs(t_mid - t) / (t_mid - t_s) * self._v
+                v = self._v
                 x_dot = v * l_i
 
         flat_output = { 'x':x, 'x_dot':x_dot, 'x_ddot':x_ddot, 'x_dddot':x_dddot, 'x_ddddot':x_ddddot,

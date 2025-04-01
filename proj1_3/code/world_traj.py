@@ -47,7 +47,7 @@ class WorldTraj(object):
         # self.points = resample_path(self.path, 1.0)
 
         simplified = rdp_simplify(self.path, epsilon=0.5)
-        self.points = resample(simplified, 1.5)
+        self.points = resample(simplified, 0.3)
 
         # Finally, you must compute a trajectory through the waypoints similar
         # to your task in the first project. One possibility is to use the
@@ -57,7 +57,7 @@ class WorldTraj(object):
 
         # STUDENT CODE HERE
         # Flight time segment based on constant speed and distance between waypoints
-        self.v = 3.6
+        self.v = 0.8
         l = np.diff(self.points, axis=0)
         d = np.linalg.norm(l, axis=1, keepdims=True)
         t = (d / self.v).flatten()
